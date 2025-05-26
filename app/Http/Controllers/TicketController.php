@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 class TicketController extends Controller
 {
     public function index() {
+        // dd(ticket::where('status','vendido')->where('pago','si')->count());
         $tickets = ticket::orderBy('number')->get();
         return view('index', compact('tickets'));
     }
@@ -39,4 +40,40 @@ class TicketController extends Controller
 
         return back()->with('success', '¡Ticket registrado con éxito!');
     }
+
+    public function resumenVentas()
+    {
+        $ticketsVendidos = ticket::where('status', 'vendido');
+        $totalVendidos = $ticketsVendidos->count();
+        
+        $ventasPorPersona = $ticketsVendidos
+            ->selectRaw('vendedor, COUNT(*) as cantidad')
+            ->groupBy('vendedor')
+            // ->orderByDesc('cantidad')
+            ->get();
+        
+
+        
+        $precioPorTicket = 2; // ajusta si es dinámico
+        $recaudado = $totalVendidos * $precioPorTicket;
+
+        return view('resumen', compact('ventasPorPersona', 'totalVendidos', 'recaudado'));
+    }
+
+    public function pagos()
+    {
+        $ticketsSinPagar = Ticket::where('pago', 'no')->whereNotNull('vendedor')->orderBy('number')->get();
+        return view('pagos', compact('ticketsSinPagar'));
+    }
+
+    public function confirmarPagos(Request $request)
+    {
+        $ids = $request->input('tickets', []);
+
+        Ticket::whereIn('id', $ids)->update(['pago' => 'si']);
+
+        return redirect()->back()->with('success', 'Pagos confirmados correctamente.');
+    }
+
+
 }

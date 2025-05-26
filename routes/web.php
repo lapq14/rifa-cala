@@ -20,4 +20,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 Route::middleware('auth')->group(function(){
     Route::get('/comprar', [TicketController::class, 'showPurchaseForm'])->name('tickets.comprar');
     Route::post('/comprar', [TicketController::class, 'purchase'])->name('tickets.purchase');
+    Route::get('/resumen-ventas', [TicketController::class, 'resumenVentas'])->name('tickets.resumen');
+    Route::get('/confirmar-pagos', [TicketController::class, 'pagos'])->name('tickets.pago');
+    Route::post('/tickets/confirmar-pagos', [TicketController::class, 'confirmarPagos'])->name('tickets.confirmarPagos');
 });
